@@ -10,36 +10,55 @@
     renderSummaryCards();
     renderTable(ASSETS);
     bindEvents();
-    autoLoadExcel();
+    showStartupModal();
   }
 
-  // ── assets.xlsx 자동 로드 ────────────────────────────────
+  // ── 시작 모달: fetch 시도 → 실패 시 파일 선택 UI 표시 ──
+  async function showStartupModal() {
+    // 로컬 서버 환경이면 fetch로 자동 로드 시도
+    try {
+      const imported = await parseAssetsFromUrl("./assets.xlsx");
+      if (imported.length > 0) {
+        applyImported(imported, "assets.xlsx");
+        closeStartupModal();
+        return;
+      }
+    } catch (_) {
+      // file:// 환경 등 fetch 불가 → 시작 모달 유지
+    }
+    // fetch 실패 or 데이터 없음 → 모달 그대로 표시
+  }
+
+  function applyImported(imported, filename) {
+    ASSETS.length = 0;
+    imported.forEach((a) => ASSETS.push(a));
+    renderSummaryCards();
+    applyFilter();
+    const status = document.getElementById("excel-status");
+    status.textContent = `✅ ${filename} — ${imported.length}건 로드 완료`;
+    status.className = "excel-status success";
+  }
+
+  function closeStartupModal() {
+    document.getElementById("startup-modal").classList.remove("open");
+  }
+
+  // ── 새로고침 (서버 환경용) ───────────────────────────────
   async function autoLoadExcel() {
     const status = document.getElementById("excel-status");
     status.textContent = "⏳ assets.xlsx 로딩 중...";
     status.className = "excel-status loading";
-
     try {
       const imported = await parseAssetsFromUrl("./assets.xlsx");
-
       if (imported.length === 0) {
-        status.textContent = "⚠️ assets.xlsx에서 데이터를 찾을 수 없습니다. 시트/컬럼을 확인해주세요.";
+        status.textContent = "⚠️ 데이터를 찾을 수 없습니다.";
         status.className = "excel-status error";
         return;
       }
-
-      ASSETS.length = 0;
-      imported.forEach((a) => ASSETS.push(a));
-
-      renderSummaryCards();
-      applyFilter();
-
-      status.textContent = `✅ assets.xlsx — ${imported.length}건 로드 완료`;
-      status.className = "excel-status success";
+      applyImported(imported, "assets.xlsx");
     } catch (err) {
-      status.textContent = "목데이터 표시 중 (assets.xlsx 없음)";
-      status.className = "excel-status";
-      console.log("assets.xlsx 없음, 목데이터 사용:", err.message);
+      status.textContent = "fetch 불가 — 업로드 버튼을 이용해주세요.";
+      status.className = "excel-status error";
     }
   }
 
@@ -223,36 +242,22 @@
     XLSX.writeFile(wb, `정보자산목록_${date}.xlsx`);
   }
 
-  // ── 엑셀 업로드 ─────────────────────────────────────────
-  async function handleUpload(file) {
+  // ── 엑셀 업로드 (공통) ──────────────────────────────────
+  async function handleUpload(file, isStartup = false) {
     if (!file) return;
     const statusEl = document.getElementById("upload-status");
-    statusEl.textContent = "⏳ 파싱 중...";
-    statusEl.className = "upload-status";
-
     try {
       const imported = await parseAssetsFile(file);
-
       if (imported.length === 0) {
-        statusEl.textContent = "⚠️ 유효한 데이터를 찾을 수 없습니다.";
-        statusEl.className = "upload-status error";
+        alert("유효한 데이터를 찾을 수 없습니다.");
         return;
       }
-
-      ASSETS.length = 0;
-      imported.forEach((a) => ASSETS.push(a));
-
-      renderSummaryCards();
-      applyFilter();
-
-      statusEl.textContent = `✅ ${imported.length}건 업로드 완료`;
+      applyImported(imported, file.name);
+      if (isStartup) closeStartupModal();
+      statusEl.textContent = `✅ ${imported.length}건 로드 완료`;
       statusEl.className = "upload-status success";
-
-      document.getElementById("excel-status").textContent = `✅ ${file.name} — ${imported.length}건 로드 완료`;
-      document.getElementById("excel-status").className = "excel-status success";
     } catch (err) {
-      statusEl.textContent = "파싱 오류: " + err.message;
-      statusEl.className = "upload-status error";
+      alert("파일 파싱 오류: " + err.message);
     }
   }
 
@@ -273,8 +278,18 @@
     });
 
     document.getElementById("asset-file-input").addEventListener("change", (e) => {
-      handleUpload(e.target.files[0]);
+      handleUpload(e.target.files[0], false);
       e.target.value = "";
+    });
+
+    // 시작 모달 이벤트
+    document.getElementById("startup-file-input").addEventListener("change", (e) => {
+      handleUpload(e.target.files[0], true);
+      e.target.value = "";
+    });
+
+    document.getElementById("startup-skip").addEventListener("click", () => {
+      closeStartupModal();
     });
 
     document.getElementById("modal-close").addEventListener("click", closeModal);

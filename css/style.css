@@ -563,3 +563,40 @@ header h1 { font-size: 20px; font-weight: 700; color: #1a1f2e; letter-spacing: -
   overflow-y: auto;
   padding: 18px;
 }
+
+/* ── Startup Modal ── */
+.startup-box { width: 400px; }
+.startup-body {
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+.startup-body p { font-size: 13px; color: #334155; line-height: 1.7; }
+.startup-file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: #e87d2b;
+  color: #fff;
+  border-radius: 5px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+}
+.startup-file-btn:hover { background: #d06a1e; }
+.startup-skip-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.startup-skip-btn:hover { color: #64748b; }
+.startup-hint { font-size: 11px !important; color: #94a3b8 !important; }

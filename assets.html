@@ -127,6 +127,24 @@
     </div><!-- /.main -->
   </div><!-- /.app -->
 
+  <!-- ── 시작 파일 선택 모달 ── -->
+  <div id="startup-modal" class="modal-overlay open">
+    <div class="modal-box startup-box">
+      <div class="modal-header">
+        📂 자산 데이터 파일 선택
+      </div>
+      <div class="modal-body startup-body">
+        <p>자산 목록이 담긴 <strong>assets.xlsx</strong> 파일을 선택하면 데이터가 로드됩니다.</p>
+        <label class="startup-file-btn">
+          📂 파일 선택
+          <input type="file" id="startup-file-input" accept=".xlsx,.xls" style="display:none" />
+        </label>
+        <button id="startup-skip" class="startup-skip-btn">목데이터로 시작</button>
+        <p class="startup-hint">파일이 없으면 '목데이터로 시작'을 눌러 샘플 데이터로 확인할 수 있습니다.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ── 상세 모달 ── -->
   <div id="asset-modal" class="modal-overlay">
     <div class="modal-box">
