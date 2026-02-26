@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>위협동향 탐지 서비스</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ── 사이드바 ── -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">Security<br>Dashboard</div>
+      <div class="menu-item">자산관리시스템</div>
+      <div class="menu-item">이상징후 분석<br>시스템</div>
+      <div class="menu-item active">위협탐지시스템</div>
+    </nav>
+
+    <!-- ── 메인 ── -->
+    <div class="main">
+
+      <!-- 헤더 -->
+      <header>
+        <div class="header-top">
+          <div>
+            <h1>위협동향 탐지 서비스</h1>
+            <div class="header-line"></div>
+            <p class="header-date" id="header-date"></p>
+          </div>
+          <div class="header-actions">
+            <label class="btn-excel" id="excel-label" title="엑셀 파일을 업로드하면 데이터가 자동으로 반영됩니다">
+              📂 엑셀 데이터 가져오기
+              <input type="file" id="excel-input" accept=".xlsx,.xls" style="display:none" />
+            </label>
+            <span class="excel-status" id="excel-status"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 외부 위협동향 / 탐지현황 패널 -->
+      <div class="panels">
+
+        <div class="panel">
+          <div class="panel-header">외부 위협동향</div>
+          <div class="panel-content" id="threat-list"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">탐지현황</div>
+          <div class="panel-content" id="detection-list"></div>
+        </div>
+
+      </div>
+
+      <!-- 위협탐지 챗봇 -->
+      <div class="chatbot">
+        <div class="chatbot-header">위협탐지 챗봇</div>
+        <div class="chatbot-body" id="chat-messages"></div>
+        <div class="chatbot-input">
+          <input type="text" id="chat-input" placeholder="질문을 입력하세요 (예: 피싱 현황, 전체 요약, 라자루스)" />
+          <input type="file" id="file-input" style="display:none" />
+          <button id="btn-attach" title="파일 첨부">📎</button>
+          <button id="btn-send" title="전송">➤</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SheetJS CDN -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/excel.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.getElementById("header-date").textContent =
+      new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+  </script>
+</body>
+</html>
