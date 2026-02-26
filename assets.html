@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>정보자산 식별 및 기준정보 수립</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ── 사이드바 ── -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">Security<br>Dashboard</div>
+      <a class="menu-item active" href="assets.html">자산관리시스템</a>
+      <div class="menu-item">이상징후 분석<br>시스템</div>
+      <a class="menu-item" href="index.html">위협탐지시스템</a>
+    </nav>
+
+    <!-- ── 메인 ── -->
+    <div class="main">
+
+      <!-- 헤더 -->
+      <header>
+        <div class="header-top">
+          <div>
+            <h1>정보자산 식별 및 기준정보 수립</h1>
+            <div class="header-line"></div>
+            <p class="header-date" id="header-date"></p>
+          </div>
+          <div class="header-actions">
+            <button class="btn-excel" id="btn-refresh" title="같은 폴더의 assets.xlsx를 다시 읽습니다">
+              🔄 데이터 새로고침
+            </button>
+            <span class="excel-status" id="excel-status"></span>
+          </div>
+        </div>
+      </header>
+
+      <!-- 콘텐츠 영역 -->
+      <div class="asset-content">
+
+        <!-- 요약 카드 -->
+        <div class="asset-summary">
+          <div class="summary-card">
+            <div class="summary-card-label">총 자산</div>
+            <div class="summary-card-value" id="card-total">-</div>
+          </div>
+          <div class="summary-card card-it">
+            <div class="summary-card-label">IT 자산</div>
+            <div class="summary-card-value" id="card-it">-</div>
+          </div>
+          <div class="summary-card card-ot">
+            <div class="summary-card-label">OT 자산</div>
+            <div class="summary-card-value" id="card-ot">-</div>
+          </div>
+          <div class="summary-card card-sw">
+            <div class="summary-card-label">보유 SW 설치율</div>
+            <div id="sw-rates" class="sw-rates"></div>
+          </div>
+        </div>
+
+        <!-- 검색 바 -->
+        <div class="asset-toolbar">
+          <div class="asset-search">
+            <label class="search-label">검색조건</label>
+            <select id="filter-category" class="filter-select">
+              <option value="전체">전체</option>
+              <option value="IT">IT</option>
+              <option value="OT">OT</option>
+            </select>
+            <input type="text" id="filter-keyword" class="filter-input" placeholder="IP, 호스트명, 자산정보, 부서 등으로 검색..." />
+            <button id="btn-search" class="btn-primary">검색</button>
+          </div>
+          <div class="asset-actions">
+            <span id="upload-status" class="upload-status"></span>
+            <button id="btn-download" class="btn-action">📥 다운로드</button>
+            <button id="btn-upload" class="btn-action">📤 업로드</button>
+            <button id="btn-dashboard" class="btn-action btn-dashboard">📊 대시보드</button>
+            <input type="file" id="asset-file-input" accept=".xlsx,.xls" style="display:none" />
+          </div>
+        </div>
+
+        <!-- 결과 건수 -->
+        <div class="result-info">
+          총 <strong id="result-count">-</strong> 건
+        </div>
+
+        <!-- 테이블 래퍼 -->
+        <div class="asset-table-wrap">
+          <table class="asset-table">
+            <thead>
+              <tr class="col-group-row">
+                <th rowspan="2" class="col-category">구분</th>
+                <th colspan="4" class="col-group">기준 정보</th>
+                <th colspan="4" class="col-group">관리 정보</th>
+                <th colspan="3" class="col-group">운영 정보</th>
+                <th colspan="6" class="col-group">보유 SW</th>
+              </tr>
+              <tr class="col-sub-row">
+                <th>자산정보</th>
+                <th>IP</th>
+                <th>MAC</th>
+                <th>호스트명</th>
+                <th>OS</th>
+                <th>모델명</th>
+                <th>관리부서</th>
+                <th>관리담당자</th>
+                <th>운영자</th>
+                <th>상태</th>
+                <th>위치</th>
+                <th>EDR</th>
+                <th>EPS</th>
+                <th>DLP</th>
+                <th>DRM</th>
+                <th>NAC</th>
+                <th>PMS</th>
+              </tr>
+            </thead>
+            <tbody id="asset-tbody">
+              <tr><td colspan="18" class="asset-empty">데이터 로딩 중...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /.asset-content -->
+    </div><!-- /.main -->
+  </div><!-- /.app -->
+
+  <!-- ── 상세 모달 ── -->
+  <div id="asset-modal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span id="modal-title">자산 상세</span>
+        <button id="modal-close" class="modal-close">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- SheetJS CDN -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+  <script src="js/assets-data.js"></script>
+  <script src="js/assets-excel.js"></script>
+  <script src="js/assets-app.js"></script>
+  <script>
+    document.getElementById("header-date").textContent =
+      new Date().toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" });
+  </script>
+</body>
+</html>
