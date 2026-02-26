@@ -20,12 +20,30 @@
  *   A:기사명 | B:클라이언트IP | C:서버IP | D:탐지근거 | E:조치 | F:이벤트건수
  */
 
+// URL(fetch)로 엑셀 파일을 읽어 파싱
+async function parseExcelFromUrl(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`${url} 파일을 찾을 수 없습니다`);
+  const arrayBuffer = await response.arrayBuffer();
+  return parseExcelData(new Uint8Array(arrayBuffer));
+}
+
+// File 객체로 엑셀 파일을 읽어 파싱 (하위 호환)
 function parseExcel(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      try {
-        const data = new Uint8Array(e.target.result);
+      try { resolve(parseExcelData(new Uint8Array(e.target.result))); }
+      catch (err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function parseExcelData(data) {
+  return new Promise((resolve, reject) => {
+    try {
         const wb = XLSX.read(data, { type: "array", cellDates: true });
 
         const threats = [];
@@ -223,9 +241,7 @@ function parseExcel(file) {
       } catch (err) {
         reject(err);
       }
-    };
-    reader.onerror = reject;
-    reader.readAsArrayBuffer(file);
+    });
   });
 }
 

@@ -7,50 +7,48 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDetections();
   setupChatbot();
   setupSidebar();
-  setupExcelUpload();
+  setupRefreshButton();
+  autoLoadExcel();
 });
 
-// ─── 엑셀 업로드 ────────────────────────────────────────────────────
-function setupExcelUpload() {
-  const input = document.getElementById("excel-input");
+// ─── 자동 로드 (data.xlsx) ───────────────────────────────────────────
+async function autoLoadExcel() {
   const status = document.getElementById("excel-status");
+  status.textContent = "⏳ data.xlsx 로딩 중...";
+  status.className = "excel-status loading";
 
-  input.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+  try {
+    const { threats, detections } = await parseExcelFromUrl("./data.xlsx");
 
-    status.textContent = "⏳ 파싱 중...";
-    status.className = "excel-status loading";
-
-    try {
-      const { threats, detections } = await parseExcel(file);
-
-      if (threats.length === 0 && detections.length === 0) {
-        status.textContent = "⚠️ 데이터를 찾을 수 없습니다. 시트명을 확인해주세요.";
-        status.className = "excel-status error";
-        return;
-      }
-
-      activeThreats = threats.length > 0 ? threats : THREATS;
-      activeDetections = detections.length > 0 ? detections : DETECTIONS;
-
-      renderThreats();
-      renderDetections();
-
-      status.textContent = `✅ ${file.name} — 뉴스 ${activeThreats.length}건 / 탐지 ${activeDetections.length}건 로드 완료`;
-      status.className = "excel-status success";
-
-      appendChatMessage(
-        "bot",
-        `📂 <b>${file.name}</b> 데이터가 반영되었습니다.<br>• 외부 위협동향: ${activeThreats.length}건<br>• 탐지현황: ${activeDetections.length}건`
-      );
-    } catch (err) {
-      console.error(err);
-      status.textContent = `❌ 파싱 오류: ${err.message}`;
+    if (threats.length === 0 && detections.length === 0) {
+      status.textContent = "⚠️ data.xlsx에서 데이터를 찾을 수 없습니다. 시트명을 확인해주세요.";
       status.className = "excel-status error";
+      return;
     }
-    input.value = "";
-  });
+
+    activeThreats = threats.length > 0 ? threats : THREATS;
+    activeDetections = detections.length > 0 ? detections : DETECTIONS;
+
+    renderThreats();
+    renderDetections();
+
+    status.textContent = `✅ data.xlsx — 뉴스 ${activeThreats.length}건 / 탐지 ${activeDetections.length}건 로드 완료`;
+    status.className = "excel-status success";
+
+    appendChatMessage(
+      "bot",
+      `📂 <b>data.xlsx</b> 데이터가 반영되었습니다.<br>• 외부 위협동향: ${activeThreats.length}건<br>• 탐지현황: ${activeDetections.length}건`
+    );
+  } catch (err) {
+    status.textContent = "목데이터 표시 중 (data.xlsx 없음)";
+    status.className = "excel-status";
+    console.log("data.xlsx 없음, 목데이터 사용:", err.message);
+  }
+}
+
+// ─── 새로고침 버튼 ────────────────────────────────────────────────────
+function setupRefreshButton() {
+  document.getElementById("btn-refresh").addEventListener("click", autoLoadExcel);
 }
 
 // ─── 외부 위협동향 렌더링 ───────────────────────────────────────────
